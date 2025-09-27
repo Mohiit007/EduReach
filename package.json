@@ -1,0 +1,15 @@
+{
+  "name": "edureach-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "start:server": "npm --prefix server run start",
+    "dev:server": "npm --prefix server run dev",
+    "start:client": "npm --prefix client run start",
+    "build:client": "npm --prefix client run build"
+  }
+}

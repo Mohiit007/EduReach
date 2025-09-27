@@ -1,0 +1,195 @@
+{
+  "info": {
+    "name": "EduReach Backend (Mohit Scope)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api","auth","register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Student One\",\n  \"email\": \"student1@example.com\",\n  \"password\": \"password123\",\n  \"role\": \"student\",\n  \"language\": \"en\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api","auth","login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student1@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/auth/forgot-password", "host": ["{{baseUrl}}"], "path": ["api","auth","forgot-password"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"student1@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/auth/reset-password", "host": ["{{baseUrl}}"], "path": ["api","auth","reset-password"] },
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"<paste-token>\",\n  \"password\": \"newpass123\"\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Get Lessons",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/lessons?lang=en", "host": ["{{baseUrl}}"], "path": ["api","student","lessons"], "query": [{"key":"lang","value":"en"}] }
+          }
+        },
+        {
+          "name": "Mark Lesson Completed",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/lessons/{{lessonId}}/complete", "host": ["{{baseUrl}}"], "path": ["api","student","lessons","{{lessonId}}","complete"] }
+          }
+        },
+        {
+          "name": "Get Quizzes",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/quizzes?lang=en", "host": ["{{baseUrl}}"], "path": ["api","student","quizzes"], "query": [{"key":"lang","value":"en"}] }
+          }
+        },
+        {
+          "name": "Submit Quiz Attempt",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/quizzes/{{quizId}}/attempt", "host": ["{{baseUrl}}"], "path": ["api","student","quizzes","{{quizId}}","attempt"] },
+            "body": { "mode": "raw", "raw": "{\n  \"answers\": [1, 1]\n}" }
+          }
+        },
+        {
+          "name": "Get Progress",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/progress", "host": ["{{baseUrl}}"], "path": ["api","student","progress"] }
+          }
+        },
+        {
+          "name": "Get Badges",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/badges", "host": ["{{baseUrl}}"], "path": ["api","student","badges"] }
+          }
+        },
+        {
+          "name": "Offline Pack",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/offline/pack?lang=en", "host": ["{{baseUrl}}"], "path": ["api","student","offline","pack"], "query": [{"key":"lang","value":"en"}] }
+          }
+        },
+        {
+          "name": "Offline Sync",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/student/offline/sync", "host": ["{{baseUrl}}"], "path": ["api","student","offline","sync"] },
+            "body": { "mode": "raw", "raw": "{\n  \"lessonsCompleted\": [],\n  \"quizScores\": []\n}" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Parent",
+      "item": [
+        {
+          "name": "Link Child",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/parent/link-child", "host": ["{{baseUrl}}"], "path": ["api","parent","link-child"] },
+            "body": { "mode": "raw", "raw": "{\n  \"childEmail\": \"student1@example.com\"\n}" }
+          }
+        },
+        {
+          "name": "Child Progress",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/parent/child-progress/{{childId}}", "host": ["{{baseUrl}}"], "path": ["api","parent","child-progress","{{childId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Virtual Lab",
+      "item": [
+        {
+          "name": "List Experiments",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/virtual-lab/experiments", "host": ["{{baseUrl}}"], "path": ["api","virtual-lab","experiments"] }
+          }
+        },
+        {
+          "name": "Get Experiment",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/virtual-lab/experiments/{{experimentId}}", "host": ["{{baseUrl}}"], "path": ["api","virtual-lab","experiments","{{experimentId}}"] }
+          }
+        },
+        {
+          "name": "Simulate Experiment",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/virtual-lab/experiments/{{experimentId}}/simulate", "host": ["{{baseUrl}}"], "path": ["api","virtual-lab","experiments","{{experimentId}}","simulate"] },
+            "body": { "mode": "raw", "raw": "{\n  \"inputs\": { \"HCl\": \"10ml\", \"NaOH\": \"10ml\" }\n}" }
+          }
+        },
+        {
+          "name": "Submit Experiment Result",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Authorization", "value": "Bearer {{token}}" }, { "key": "Content-Type", "value": "application/json" } ],
+            "url": { "raw": "{{baseUrl}}/api/virtual-lab/experiments/{{experimentId}}/submit", "host": ["{{baseUrl}}"], "path": ["api","virtual-lab","experiments","{{experimentId}}","submit"] },
+            "body": { "mode": "raw", "raw": "{\n  \"inputs\": { \"HCl\": \"10ml\" },\n  \"outcome\": \"Neutral solution formed\",\n  \"score\": 100\n}" }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "lessonId", "value": "" },
+    { "key": "quizId", "value": "" },
+    { "key": "childId", "value": "" },
+    { "key": "experimentId", "value": "" }
+  ]
+}
