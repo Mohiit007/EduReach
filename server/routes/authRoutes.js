@@ -1,7 +1,9 @@
-const router = require('express').Router();
-const { login, register, forgotPassword, resetPassword } = require('../controllers/authController');
-const { body } = require('express-validator');
-const validate = require('../middleware/validate');
+import { Router } from 'express';
+import { login, register, forgotPassword, resetPassword } from '../controllers/authController.js';
+import { body } from 'express-validator';
+import validate from '../middleware/validate.js';
+
+const router = Router();
 
 router.post(
   '/register',
@@ -40,4 +42,4 @@ router.post(
   resetPassword
 );
 
-module.exports = router;
+export default router;

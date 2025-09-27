@@ -1,6 +1,7 @@
-const router = require('express').Router();
-const { getDashboard } = require('../controllers/superAdminController');
+import { Router } from 'express';
+import { getDashboard } from '../controllers/superAdminController.js';
 
+const router = Router();
 router.get('/dashboard', getDashboard);
 
-module.exports = router;
+export default router;

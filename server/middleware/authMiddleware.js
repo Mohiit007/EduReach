@@ -1,7 +1,7 @@
-const jwt = require('jsonwebtoken');
-const { jwtSecret } = require('../config/auth');
+import jwt from 'jsonwebtoken';
+import { jwtSecret } from '../config/auth.js';
 
-module.exports = function authMiddleware(req, res, next) {
+const authMiddleware = (req, res, next) => {
   try {
     const auth = req.headers.authorization || '';
     if (!auth.startsWith('Bearer ')) {
@@ -12,6 +12,8 @@ module.exports = function authMiddleware(req, res, next) {
     req.user = payload;
     return next();
   } catch (err) {
-    return res.status(401).json({ message: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Invalid token' });
   }
-}
+};
+
+export default authMiddleware;

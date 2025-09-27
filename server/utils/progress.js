@@ -1,5 +1,5 @@
-const Progress = require('../models/Progress');
-const Lesson = require('../models/Lesson');
+import Progress from '../models/Progress.js';
+import Lesson from '../models/Lesson.js';
 
 function isSameDay(d1, d2) {
   return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
@@ -34,4 +34,4 @@ async function maintainProgress(userId) {
   await progress.save();
 }
 
-module.exports = { maintainProgress };
+export { maintainProgress };

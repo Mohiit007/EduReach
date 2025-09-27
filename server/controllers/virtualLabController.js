@@ -1,24 +1,24 @@
-const VirtualExperiment = require('../models/VirtualExperiment');
+import VirtualExperiment from '../models/VirtualExperiment.js';
 
 // GET /api/virtual-lab
-exports.listExperiments = async (req, res, next) => {
+const listExperiments = async (req, res, next) => {
   try {
     const experiments = await VirtualExperiment.find({}, 'name description reagents steps');
     return res.json({ experiments });
   } catch (err) { next(err); }
 };
 
-// GET /api/virtual-lab/:id
-exports.getExperiment = async (req, res, next) => {
+// POST /api/virtual-lab
+const createExperiment = async (req, res, next) => {
   try {
-    const exp = await VirtualExperiment.findById(req.params.id);
-    if (!exp) return res.status(404).json({ message: 'Experiment not found' });
-    return res.json({ experiment: exp });
+    const { name, description, reagents, steps, expectedOutcome } = req.body;
+    const exp = await VirtualExperiment.create({ name, description, reagents, steps, expectedOutcome });
+    return res.status(201).json(exp);
   } catch (err) { next(err); }
 };
 
 // POST /api/virtual-lab/:id/simulate { inputs }
-exports.simulateExperiment = async (req, res, next) => {
+const simulateExperiment = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { inputs = {} } = req.body;
@@ -35,7 +35,7 @@ exports.simulateExperiment = async (req, res, next) => {
 };
 
 // POST /api/virtual-lab/:id/submit { inputs, outcome?, score? }
-exports.submitResult = async (req, res, next) => {
+const submitResult = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { inputs = {}, outcome, score } = req.body;
@@ -48,4 +48,11 @@ exports.submitResult = async (req, res, next) => {
     if (!exp) return res.status(404).json({ message: 'Experiment not found' });
     return res.json({ message: 'Result recorded', experiment: { _id: exp._id, resultsCount: exp.results.length } });
   } catch (err) { next(err); }
+};
+
+export {
+  listExperiments,
+  createExperiment,
+  simulateExperiment,
+  submitResult
 };

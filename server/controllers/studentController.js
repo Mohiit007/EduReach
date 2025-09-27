@@ -1,19 +1,32 @@
-const Lesson = require('../models/Lesson');
-const Quiz = require('../models/Quiz');
-const Progress = require('../models/Progress');
-const { maintainProgress } = require('../utils/progress');
+import Lesson from '../models/Lesson.js';
+import Quiz from '../models/Quiz.js';
+import Progress from '../models/Progress.js';
+import { maintainProgress } from '../utils/progress.js';
 
 // GET /api/student/lessons?lang=en
-exports.getLessons = async (req, res, next) => {
+const getLessons = async (req, res, next) => {
   try {
-    const lang = (req.query.lang || 'en');
-    const lessons = await Lesson.find({}, { [`title.${lang}`]: 1, [`content.${lang}`]: 1, media: 1, tags: 1 });
+    const lang = ['en', 'hi', 'pa'].includes(req.query.lang) ? req.query.lang : 'en';
+    const lessons = await Lesson.find({}, { 
+      [`title.${lang}`]: 1, 
+      'title.en': 1, // Always include English as fallback
+      [`content.${lang}`]: 1, 
+      'content.en': 1, // Always include English as fallback
+      media: { 
+        $filter: {
+          input: '$media',
+          as: 'item',
+          cond: { $in: ['$$item.language', [lang, 'en']] }
+        }
+      },
+      tags: 1 
+    });
     return res.json({ lessons });
   } catch (err) { next(err); }
 };
 
 // POST /api/student/lessons/:id/complete
-exports.markLessonCompleted = async (req, res, next) => {
+const markLessonCompleted = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
@@ -28,16 +41,41 @@ exports.markLessonCompleted = async (req, res, next) => {
 };
 
 // GET /api/student/quizzes
-exports.getQuizzes = async (req, res, next) => {
+const getQuizzes = async (req, res, next) => {
   try {
-    const lang = (req.query.lang || 'en');
-    const quizzes = await Quiz.find({}, { [`title.${lang}`]: 1, questions: 1, tags: 1 });
+    const lang = ['en', 'hi', 'pa'].includes(req.query.lang) ? req.query.lang : 'en';
+    const quizzes = await Quiz.aggregate([
+      {
+        $project: {
+          title: {
+            [lang]: 1,
+            en: 1 // Always include English as fallback
+          },
+          questions: {
+            $map: {
+              input: '$questions',
+              as: 'question',
+              in: {
+                _id: '$$question._id',
+                prompt: {
+                  [lang]: '$$question.prompt.' + lang,
+                  en: '$$question.prompt.en' // Always include English as fallback
+                },
+                options: '$$question.options',
+                correctIndex: '$$question.correctIndex'
+              }
+            }
+          },
+          tags: 1
+        }
+      }
+    ]);
     return res.json({ quizzes });
   } catch (err) { next(err); }
 };
 
 // POST /api/student/quizzes/:id/attempt { answers: [index...] }
-exports.submitQuizAttempt = async (req, res, next) => {
+const submitQuizAttempt = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
@@ -60,29 +98,25 @@ exports.submitQuizAttempt = async (req, res, next) => {
 };
 
 // GET /api/student/progress
-exports.getProgress = async (req, res, next) => {
+const getProgress = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const progress = await Progress.findOne({ userId }).populate('lessonsCompleted', '_id');
     return res.json({ progress: progress || { userId, lessonsCompleted: [], quizScores: [] } });
   } catch (err) { next(err); }
-};
 
 // GET /api/student/badges
-exports.getBadges = async (req, res, next) => {
+const getBadges = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const progress = await Progress.findOne({ userId });
-    const badges = [];
-    if (!progress) return res.json({ badges });
+    const progress = await Progress.findOne({ userId }).populate('lessonsCompleted', '_id').populate('quizScores', 'quizId');
+    if (!progress) return res.json({ badges: [], stats: {} });
 
-    const lessonsCount = (progress.lessonsCompleted || []).length;
-    const avg = (() => {
-      const arr = progress.quizScores || [];
-      if (!arr.length) return 0;
-      const totalPerc = arr.reduce((acc, q) => acc + (q.total ? (q.score / q.total) * 100 : 0), 0);
-      return Math.round(totalPerc / arr.length);
-    })();
+    const badges = [];
+    const lessonsCount = progress.lessonsCompleted?.length || 0;
+    const quizScores = progress.quizScores || [];
+    const totalScore = quizScores.reduce((sum, q) => sum + (q.score || 0), 0);
+    const avg = quizScores.length ? Math.round(totalScore / quizScores.length) : 0;
     const streak = progress.streakCount || 0;
 
     if (lessonsCount >= 1) badges.push('Starter');
@@ -97,16 +131,54 @@ exports.getBadges = async (req, res, next) => {
 };
 
 // Offline: GET /api/student/offline/pack?lang=en
-exports.getOfflinePack = async (req, res, next) => {
+const getOfflinePack = async (req, res, next) => {
   try {
-    const lang = req.query.lang || 'en';
-    const lessons = await Lesson.find({ offlineReady: true }, { [`title.${lang}`]: 1, [`content.${lang}`]: 1, media: 1 });
-    return res.json({ lessons });
+{{ ... }}
+    const [lessons, quizzes] = await Promise.all([
+      Lesson.find(
+        { offlineReady: true },
+        { 
+          [`title.${lang}`]: 1,
+          'title.en': 1,
+          [`content.${lang}`]: 1,
+          'content.en': 1,
+          media: 1,
+          tags: 1
+        }
+      ),
+      Quiz.aggregate([
+        {
+          $project: {
+            title: {
+              [lang]: 1,
+              en: 1
+            },
+            questions: {
+              $map: {
+                input: '$questions',
+                as: 'question',
+                in: {
+                  _id: '$$question._id',
+                  prompt: {
+                    [lang]: `$$question.prompt.${lang}`,
+                    en: '$$question.prompt.en'
+                  },
+                  options: '$$question.options',
+                  correctIndex: '$$question.correctIndex'
+                }
+              }
+            },
+            tags: 1
+          }
+        }
+      ])
+    ]);
+    return res.json({ lessons, quizzes });
   } catch (err) { next(err); }
 };
 
 // Offline: POST /api/student/offline/sync { lessonsCompleted: [ids], quizScores: [{ quizId, score, total, date? }] }
-exports.syncOfflineProgress = async (req, res, next) => {
+const syncOfflineProgress = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { lessonsCompleted = [], quizScores = [] } = req.body;
@@ -122,4 +194,14 @@ exports.syncOfflineProgress = async (req, res, next) => {
     await maintainProgress(userId);
     return res.json({ message: 'Synced', progress });
   } catch (err) { next(err); }
+};
+export {
+  getLessons,
+  markLessonCompleted,
+  getQuizzes,
+  submitQuizAttempt,
+  getProgress,
+  getBadges,
+  getOfflinePack,
+  syncOfflineProgress
 };

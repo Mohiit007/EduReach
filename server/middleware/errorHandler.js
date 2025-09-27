@@ -1,4 +1,4 @@
-const ApiError = require('../utils/ApiError');
+import ApiError from '../utils/ApiError.js';
 
 /**
  * Catch 404 and forward to error handler
@@ -10,64 +10,60 @@ const notFound = (req, res, next) => {
 
 /**
  * Error handler middleware
- * @param {Error} err - Error object
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next function
  */
 const errorHandler = (err, req, res, next) => {
-  // Log the error for debugging
-  console.error('Error:', err);
-
-  // Default error response
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
-  const response = {
-    success: false,
-    message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  };
-
-  // Handle Mongoose validation errors
-  if (err.name === 'ValidationError') {
-    const errors = Object.values(err.errors).map(e => e.message);
-    return res.status(400).json({
-      success: false,
-      message: 'Validation Error',
-      errors
-    });
-  }
-
-  // Handle duplicate key errors
-  if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
-    return res.status(400).json({
-      success: false,
-      message: `Duplicate field value: ${field}. Please use another value.`
-    });
-  }
-
+  console.error(err.stack);
+  
   // Handle JWT errors
   if (err.name === 'JsonWebTokenError') {
     return res.status(401).json({
       success: false,
-      message: 'Invalid token. Please log in again.'
+      message: 'Invalid token',
     });
   }
 
-  // Handle JWT expired errors
+  // Handle JWT expiration
   if (err.name === 'TokenExpiredError') {
     return res.status(401).json({
       success: false,
-      message: 'Your token has expired. Please log in again.'
+      message: 'Token expired',
     });
   }
 
-  // Send error response
-  res.status(statusCode).json(response);
+  // Handle validation errors
+  if (err.name === 'ValidationError') {
+    const messages = Object.values(err.errors).map(val => val.message);
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error',
+      errors: messages,
+    });
+  }
+
+  // Handle MongoDB duplicate key errors
+  if (err.code === 11000) {
+    const field = Object.keys(err.keyValue)[0];
+    return res.status(400).json({
+      success: false,
+      message: `${field} already exists`,
+    });
+  }
+
+  // Handle our custom ApiError
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message,
+      ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    });
+  }
+
+  // Default to 500 server error
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+  });
 };
 
-module.exports = {
-  errorHandler,
-  notFound
-};
+export { errorHandler, notFound };

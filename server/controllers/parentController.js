@@ -1,8 +1,8 @@
-const User = require('../models/User');
-const Progress = require('../models/Progress');
+import User from '../models/User.js';
+import Progress from '../models/Progress.js';
 
 // POST /api/parent/link-child { childEmail }
-exports.linkChild = async (req, res, next) => {
+const linkChild = async (req, res, next) => {
   try {
     const parentId = req.user.id;
     const { childEmail } = req.body;
@@ -21,7 +21,7 @@ exports.linkChild = async (req, res, next) => {
 };
 
 // GET /api/parent/child-progress/:childId
-exports.getChildProgress = async (req, res, next) => {
+const getChildProgress = async (req, res, next) => {
   try {
     const parentId = req.user.id;
     const { childId } = req.params;
@@ -33,3 +33,5 @@ exports.getChildProgress = async (req, res, next) => {
     return res.json({ progress });
   } catch (err) { next(err); }
 };
+
+export { linkChild, getChildProgress };

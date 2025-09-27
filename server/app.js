@@ -1,7 +1,11 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load .env from monorepo root
 dotenv.config({ path: path.resolve(__dirname, '..', '.env') });
@@ -17,14 +21,26 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
-// API Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/student', require('./routes/studentRoutes'));
-app.use('/api/parent', require('./routes/parentRoutes'));
-app.use('/api/virtual-lab', require('./routes/virtualLabRoutes'));
+// Import routes
+import authRoutes from './routes/authRoutes.js';
+import studentRoutes from './routes/studentRoutes.js';
+import parentRoutes from './routes/parentRoutes.js';
+import virtualLabRoutes from './routes/virtualLabRoutes.js';
+import teacherRoutes from './routes/teacherRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import superAdminRoutes from './routes/superAdminRoutes.js';
 
 // Import error handlers
-const { notFound, errorHandler } = require('./middleware/errorHandler');
+import { notFound, errorHandler } from './middleware/errorHandler.js';
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/student', studentRoutes);
+app.use('/api/parent', parentRoutes);
+app.use('/api/teacher', teacherRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/super-admin', superAdminRoutes);
+app.use('/api/virtual-lab', virtualLabRoutes);
 
 // 404 handler - must be before error handler
 app.use(notFound);
@@ -34,4 +50,4 @@ app.use((err, req, res, next) => {
   errorHandler(err, req, res, next);
 });
 
-module.exports = app;
+export default app;

@@ -1,9 +1,11 @@
-const router = require('express').Router();
-const auth = require('../middleware/authMiddleware');
-const allow = require('../middleware/roleMiddleware');
-const ctrl = require('../controllers/studentController');
-const { body, param, query } = require('express-validator');
-const validate = require('../middleware/validate');
+import { Router } from 'express';
+import auth from '../middleware/authMiddleware.js';
+import allow from '../middleware/roleMiddleware.js';
+import * as ctrl from '../controllers/studentController.js';
+import { body, param, query } from 'express-validator';
+import validate from '../middleware/validate.js';
+
+const router = Router();
 
 router.use(auth, allow('student'));
 
@@ -39,4 +41,4 @@ router.post(
   ctrl.syncOfflineProgress
 );
 
-module.exports = router;
+export default router;

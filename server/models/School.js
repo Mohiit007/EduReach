@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const schoolSchema = new mongoose.Schema({
   name: String,
   address: String,
 });
 
-module.exports = mongoose.model('School', schoolSchema);
+export default mongoose.model('School', schoolSchema);

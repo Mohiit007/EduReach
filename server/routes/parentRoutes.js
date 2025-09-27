@@ -1,13 +1,15 @@
-const router = require('express').Router();
-const auth = require('../middleware/authMiddleware');
-const allow = require('../middleware/roleMiddleware');
-const ctrl = require('../controllers/parentController');
-const { body, param } = require('express-validator');
-const validate = require('../middleware/validate');
+import { Router } from 'express';
+import auth from '../middleware/authMiddleware.js';
+import allow from '../middleware/roleMiddleware.js';
+import * as ctrl from '../controllers/parentController.js';
+import { body, param } from 'express-validator';
+import validate from '../middleware/validate.js';
+
+const router = Router();
 
 router.use(auth, allow('parent'));
 
 router.post('/link-child', [body('childEmail').isEmail()], validate, ctrl.linkChild);
 router.get('/child-progress/:childId', [param('childId').isMongoId()], validate, ctrl.getChildProgress);
 
-module.exports = router;
+export default router;

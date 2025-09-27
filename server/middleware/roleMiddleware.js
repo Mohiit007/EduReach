@@ -1,4 +1,4 @@
-module.exports = function roleMiddleware(...allowedRoles) {
+const roleMiddleware = (...allowedRoles) => {
   return (req, res, next) => {
     try {
       if (!req.user || !req.user.role) {
@@ -9,7 +9,10 @@ module.exports = function roleMiddleware(...allowedRoles) {
       }
       return next();
     } catch (err) {
-      return res.status(403).json({ message: 'Forbidden' });
+      console.error('Role middleware error:', err);
+      res.status(500).json({ message: 'Internal server error' });
     }
   };
-}
+};
+
+export default roleMiddleware;

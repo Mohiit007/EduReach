@@ -1,16 +1,16 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const { jwtSecret } = require('../config/auth');
-const { sendEmail } = require('../utils/emailService');
-const User = require('../models/User');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { jwtSecret } from '../config/auth.js';
+import { sendEmail } from '../utils/emailService.js';
+import User from '../models/User.js';
 
 /**
  * POST /api/auth/register
  * Body: { name, email, password, role: 'student'|'parent', language? }
  * Res: { token, user: { _id, name, email, role, language } }
  */
-exports.register = async (req, res, next) => {
+const register = async (req, res, next) => {
   try {
     const { name, email, password, role = 'student', language = 'en' } = req.body;
     if (!name || !email || !password) return res.status(400).json({ message: 'Missing required fields' });
@@ -28,7 +28,7 @@ exports.register = async (req, res, next) => {
  * Body: { email, password }
  * Res: { token, user }
  */
-exports.login = async (req, res, next) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -45,7 +45,7 @@ exports.login = async (req, res, next) => {
  * Body: { email }
  * Res: { message }
  */
-exports.forgotPassword = async (req, res, next) => {
+const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
@@ -58,9 +58,11 @@ exports.forgotPassword = async (req, res, next) => {
         await sendEmail({ to: email, subject: 'Password reset', html: `<p>Your reset token: ${token}</p>` });
       } catch (e) {
         // Log and continue silently in dev
+        console.error('Failed to send email:', e);
       }
+      return res.json({ message: 'If an account exists with this email, a reset token has been sent' });
     }
-    return res.json({ message: 'If the email exists, a reset link has been sent.' });
+    return res.json({ message: 'If an account exists with this email, a reset token has been sent' });
   } catch (err) { next(err); }
 };
 
@@ -69,15 +71,25 @@ exports.forgotPassword = async (req, res, next) => {
  * Body: { token, password }
  * Res: { message }
  */
-exports.resetPassword = async (req, res, next) => {
+const resetPassword = async (req, res, next) => {
   try {
     const { token, password } = req.body;
-    const user = await User.findOne({ resetToken: token, resetTokenExp: { $gt: new Date() } });
+    const user = await User.findOne({ 
+      resetToken: token, 
+      resetTokenExp: { $gt: new Date() } 
+    });
+    
     if (!user) return res.status(400).json({ message: 'Invalid or expired token' });
+    
     user.password = await bcrypt.hash(password, 10);
     user.resetToken = undefined;
     user.resetTokenExp = undefined;
+    
     await user.save();
     return res.json({ message: 'Password updated successfully' });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    next(err); 
+  }
 };
+
+export { register, login, forgotPassword, resetPassword };

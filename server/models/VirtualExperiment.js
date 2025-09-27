@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const resultSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -17,4 +17,4 @@ const virtualExperimentSchema = new mongoose.Schema({
   results: { type: [resultSchema], default: [] },
 }, { timestamps: true });
 
-module.exports = mongoose.model('VirtualExperiment', virtualExperimentSchema);
+export default mongoose.model('VirtualExperiment', virtualExperimentSchema);
