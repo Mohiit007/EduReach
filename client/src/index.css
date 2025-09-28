@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* EduReach Design System - Educational Platform Theme */
+
+@layer base {
+  :root {
+    /* Core Educational Brand Colors */
+    --background: 210 100% 99%;
+    --foreground: 215 25% 27%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    /* Primary - Educational Blue */
+    --primary: 213 94% 68%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 213 94% 85%;
+
+    /* Secondary - Learning Green */
+    --secondary: 142 76% 36%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 142 76% 85%;
+
+    /* Accent - Innovation Orange */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 25 95% 85%;
+
+    /* Success - Achievement Green */
+    --success: 120 40% 50%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Attention Yellow */
+    --warning: 48 96% 65%;
+    --warning-foreground: 215 25% 27%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 15% 58%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 213 94% 68%;
+
+    /* Educational Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(213 94% 68%), hsl(213 94% 78%));
+    --gradient-secondary: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 46%));
+    --gradient-hero: linear-gradient(135deg, hsl(213 94% 68%), hsl(142 76% 56%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 95% 53%), hsl(25 95% 63%));
+    --gradient-yellow: linear-gradient(135deg, hsl(48 96% 65%), hsl(48 96% 75%)); /* Light theme yellow gradient */
+    --gradient-success: linear-gradient(135deg, hsl(120 40% 50%), hsl(120 40% 60%));
+
+    /* Shadows */
+    --shadow-soft: 0 2px 8px hsl(213 94% 68% / 0.1);
+    --shadow-medium: 0 4px 16px hsl(213 94% 68% / 0.15);
+    --shadow-strong: 0 8px 32px hsl(213 94% 68% / 0.2);
+
+    /* Animation Variables */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Core Educational Brand Colors - Dark Mode */
+    --background: 222 84% 5%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary - Educational Blue (adjusted for dark) */
+    --primary: 213 94% 75%;
+    --primary-foreground: 222 84% 5%;
+    --primary-light: 213 94% 60%;
+
+    /* Secondary - Learning Green (adjusted for dark) */
+    --secondary: 142 76% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 142 76% 35%;
+
+    /* Accent - Innovation Orange (adjusted for dark) */
+    --accent: 25 95% 60%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 25 95% 45%;
+
+    /* Success - Achievement Green */
+    --success: 120 40% 55%;
+    --success-foreground: 0 0% 100%;
+
+    /* Warning - Attention Yellow */
+    --warning: 48 96% 70%;
+    --warning-foreground: 222 84% 5%;
+
+    --muted: 217 32% 18%;
+    --muted-foreground: 215 20% 65%;
+
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 32% 18%;
+    --input: 217 32% 18%;
+    --ring: 213 94% 75%;
+
+    /* Dark Mode Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(213 94% 65%), hsl(213 94% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(142 76% 40%), hsl(142 76% 50%));
+    --gradient-hero: linear-gradient(135deg, hsl(213 94% 65%), hsl(142 76% 50%));
+    --gradient-accent: linear-gradient(135deg, hsl(25 95% 55%), hsl(25 95% 65%));
+    --gradient-yellow: linear-gradient(135deg, hsl(48 96% 70%), hsl(48 96% 80%)); /* Dark theme yellow gradient */
+    --gradient-success: linear-gradient(135deg, hsl(120 40% 55%), hsl(120 40% 65%));
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
