@@ -17,6 +17,16 @@ const createExperiment = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// GET /api/virtual-lab/:id
+const getExperiment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const experiment = await VirtualExperiment.findById(id);
+    if (!experiment) return res.status(404).json({ message: 'Experiment not found' });
+    return res.json({ experiment });
+  } catch (err) { next(err); }
+};
+
 // POST /api/virtual-lab/:id/simulate { inputs }
 const simulateExperiment = async (req, res, next) => {
   try {
@@ -53,6 +63,7 @@ const submitResult = async (req, res, next) => {
 export {
   listExperiments,
   createExperiment,
+  getExperiment,
   simulateExperiment,
   submitResult
 };

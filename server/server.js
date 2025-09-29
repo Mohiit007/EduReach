@@ -7,6 +7,7 @@ import { connectDB } from './config/db.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+// Load .env from root of monorepo
 dotenv.config({ path: resolve(__dirname, '..', '.env') });
 
 const PORT = process.env.PORT || 5000;
@@ -57,4 +58,3 @@ async function startServer() {
 
 // Start the application
 startServer();
-

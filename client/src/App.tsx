@@ -17,6 +17,9 @@ import QuizPage from "./pages/QuizPage";
 import ProgressPage from "./pages/ProgressPage";
 import VirtualLabPage from "./pages/VirtualLabPage";
 import NotFound from "./pages/NotFound";
+import ClassesPage from "./pages/ClassesPage";
+import AssignPage from "./pages/AssignPage"; // Import the new AssignPage
+import ReportsPage from "./pages/ReportsPage"; // Import the new ReportsPage
 
 const queryClient = new QueryClient();
 
@@ -37,6 +40,9 @@ const App = () => (
             <Route path="/student/progress" element={<ProgressPage />} />
             <Route path="/student/lab" element={<VirtualLabPage />} />
             <Route path="/teacher/create-lesson" element={<CreateLesson />} />
+            <Route path="/teacher/classes" element={<ClassesPage />} />
+            <Route path="/teacher/assign" element={<AssignPage />} /> {/* Add the new route for AssignPage */}
+            <Route path="/teacher/reports" element={<ReportsPage />} /> {/* Add the new route for ReportsPage */}
             <Route path="/student/*" element={<StudentDashboard />} />
             <Route path="/teacher" element={<TeacherDashboard />} />
             <Route path="/teacher/*" element={<TeacherDashboard />} />

@@ -2,9 +2,10 @@ import Lesson from '../models/Lesson.js';
 import Quiz from '../models/Quiz.js';
 import Progress from '../models/Progress.js';
 import { maintainProgress } from '../utils/progress.js';
+import Class from '../models/Class.js'; // Added import for Class model
 
 // GET /api/student/lessons?lang=en
-const getLessons = async (req, res, next) => {
+export const getLessons = async (req, res, next) => {
   try {
     const lang = ['en', 'hi', 'pa'].includes(req.query.lang) ? req.query.lang : 'en';
     const lessons = await Lesson.find({}, { 
@@ -26,7 +27,7 @@ const getLessons = async (req, res, next) => {
 };
 
 // POST /api/student/lessons/:id/complete
-const markLessonCompleted = async (req, res, next) => {
+export const markLessonCompleted = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
@@ -41,7 +42,7 @@ const markLessonCompleted = async (req, res, next) => {
 };
 
 // GET /api/student/quizzes
-const getQuizzes = async (req, res, next) => {
+export const getQuizzes = async (req, res, next) => {
   try {
     const lang = ['en', 'hi', 'pa'].includes(req.query.lang) ? req.query.lang : 'en';
     const quizzes = await Quiz.aggregate([
@@ -75,7 +76,7 @@ const getQuizzes = async (req, res, next) => {
 };
 
 // POST /api/student/quizzes/:id/attempt { answers: [index...] }
-const submitQuizAttempt = async (req, res, next) => {
+export const submitQuizAttempt = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { id } = req.params;
@@ -98,15 +99,16 @@ const submitQuizAttempt = async (req, res, next) => {
 };
 
 // GET /api/student/progress
-const getProgress = async (req, res, next) => {
+export const getProgress = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const progress = await Progress.findOne({ userId }).populate('lessonsCompleted', '_id');
     return res.json({ progress: progress || { userId, lessonsCompleted: [], quizScores: [] } });
   } catch (err) { next(err); }
+};
 
 // GET /api/student/badges
-const getBadges = async (req, res, next) => {
+export const getBadges = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const progress = await Progress.findOne({ userId }).populate('lessonsCompleted', '_id').populate('quizScores', 'quizId');
@@ -131,9 +133,10 @@ const getBadges = async (req, res, next) => {
 };
 
 // Offline: GET /api/student/offline/pack?lang=en
-const getOfflinePack = async (req, res, next) => {
+export const getOfflinePack = async (req, res, next) => {
   try {
-{{ ... }}
+    const lang = req.query.lang || 'en';
+
     const [lessons, quizzes] = await Promise.all([
       Lesson.find(
         { offlineReady: true },
@@ -147,38 +150,28 @@ const getOfflinePack = async (req, res, next) => {
         }
       ),
       Quiz.aggregate([
-        {
-          $project: {
-            title: {
-              [lang]: 1,
-              en: 1
-            },
-            questions: {
-              $map: {
-                input: '$questions',
-                as: 'question',
-                in: {
-                  _id: '$$question._id',
-                  prompt: {
-                    [lang]: `$$question.prompt.${lang}`,
-                    en: '$$question.prompt.en'
-                  },
-                  options: '$$question.options',
-                  correctIndex: '$$question.correctIndex'
-                }
-              }
-            },
-            tags: 1
-          }
-        }
+        { $match: { offlineReady: true } },
+        { $project: {
+            [`title.${lang}`]: 1,
+            'title.en': 1,
+            questions: 1,
+            totalMarks: 1
+        }}
       ])
     ]);
-    return res.json({ lessons, quizzes });
+
+    const offlinePack = {
+      timestamp: new Date(),
+      lessons: lessons,
+      quizzes: quizzes,
+    };
+
+    res.status(200).json(offlinePack);
   } catch (err) { next(err); }
 };
 
 // Offline: POST /api/student/offline/sync { lessonsCompleted: [ids], quizScores: [{ quizId, score, total, date? }] }
-const syncOfflineProgress = async (req, res, next) => {
+export const syncOfflineProgress = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const { lessonsCompleted = [], quizScores = [] } = req.body;
@@ -195,13 +188,35 @@ const syncOfflineProgress = async (req, res, next) => {
     return res.json({ message: 'Synced', progress });
   } catch (err) { next(err); }
 };
-export {
-  getLessons,
-  markLessonCompleted,
-  getQuizzes,
-  submitQuizAttempt,
-  getProgress,
-  getBadges,
-  getOfflinePack,
-  syncOfflineProgress
+
+export const requestJoinClass = async (req, res, next) => {
+  try {
+    const { classId } = req.body;
+    const studentId = req.user.id;
+
+    const existingClass = await Class.findById(classId);
+
+    if (!existingClass) {
+      return res.status(404).json({ message: 'Class not found' });
+    }
+
+    // Check if student is already in the class or has a pending request
+    if (existingClass.students.includes(studentId)) {
+      return res.status(400).json({ message: 'Student already in this class' });
+    }
+    if (existingClass.pendingStudents.includes(studentId)) {
+      return res.status(400).json({ message: 'Join request already pending for this class' });
+    }
+
+    const updatedClass = await Class.findByIdAndUpdate(
+      classId,
+      { $addToSet: { pendingStudents: studentId } },
+      { new: true }
+    );
+
+    res.status(200).json({ message: 'Join request sent', class: updatedClass });
+  } catch (err) {
+    console.error('Error requesting to join class:', err);
+    next(err);
+  }
 };
